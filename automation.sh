@@ -18,3 +18,27 @@ tar -cvf /tmp/${name}-httpd-logs-${timestamp}.tar /var/log/apache2/*.log
 
 # Uploading the tar archive file to S3 bucket
 aws s3 cp /tmp/${name}-httpd-logs-${timestamp}.tar s3://upgrad-rutik/${name}-httpd-logs-${timestamp}.tar
+
+
+#init variable
+docroot="/var/www/html"
+
+#Check the file exits or not
+if [[ ! -f ${docroot}/inventory.html ]]; then
+echo -e "Log Type\t\tTime Created\t\tType\t\tSize" > ${docroot}/inventory.html
+fi
+
+#Inserting logs into file
+if [[ -f ${docroot}/inventory.html ]]; then
+size=$(du -h /tmp/${name}-httpd-logs-${timestamp}.tar | awk '{print $1}')
+echo -e "httpd-logs\t\t${timestamp}\t\ttar\t\t${size}" >>${docroot}/inventory.html
+fi
+
+#Creating a Cron Job
+if [[ ! -f /etc/cron.d/automation ]]; then
+echo "* * * * * root /root/Automation_Project/Automation_Project/automation.sh" >> /etc/cron.d/automation
+fi
+
+
+
+
